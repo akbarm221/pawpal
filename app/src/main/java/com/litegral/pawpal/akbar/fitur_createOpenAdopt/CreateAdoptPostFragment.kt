@@ -127,13 +127,31 @@ class CreateAdoptPostFragment : Fragment() {
     }
 
     private fun setupSpinner() {
-        ArrayAdapter.createFromResource(
-            requireContext(), R.array.gender_array, android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerGender.adapter = adapter
+        val genderArray = resources.getStringArray(R.array.gender_array)
+
+        val adapter = object : ArrayAdapter<String>(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            genderArray
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent) as TextView
+                view.setTextColor(resources.getColor(android.R.color.black)) // Warna teks saat terpilih
+                return view
+            }
+
+            override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(resources.getColor(android.R.color.black)) // Teks dropdown warna hitam
+                view.setBackgroundColor(resources.getColor(android.R.color.white)) // Background dropdown warna putih
+                return view
+            }
         }
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerGender.adapter = adapter
     }
+
 
     private fun setupClickListeners() {
         buttonBackForm.setOnClickListener { findNavController().popBackStack() }

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EEF2FB"
     tools:context=".akbar.fitur_HomePage.HomeFragment">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -23,6 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:text="Akbar M"
         android:textColor="@android:color/black"
         android:textSize="16sp"
@@ -50,6 +52,7 @@
         android:fontFamily="@font/fuzzy_bubbles_regular"
         android:text="Give Them a Home\nand They’ll Give You \na Lifetime of Love."
         android:textSize="18dp"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toBottomOf="@+id/banner"
         app:layout_constraintStart_toStartOf="@+id/banner"
         app:layout_constraintTop_toTopOf="@+id/banner"

@@ -1,4 +1,3 @@
-// Pastikan file ini ada di package: com.litegral.pawpal.akbar
 package com.litegral.pawpal.akbar.fitur_petDetail
 
 import android.graphics.Color
@@ -17,22 +16,21 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.FirebaseFirestore
 import com.litegral.pawpal.R
 import com.litegral.pawpal.akbar.model.CatModel
 import com.litegral.pawpal.akbar.fitur_petDetail.adapter.PetImageSliderAdapter
+import de.hdodenhof.circleimageview.CircleImageView
 
 class PetDetailFragment : Fragment() {
 
-    // Menerima petId dari fragment sebelumnya
     private val args: PetDetailFragmentArgs by navArgs()
-
-    // Firebase
     private lateinit var db: FirebaseFirestore
 
-    // Deklarasi Views
+    // Deklarasi semua Views
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var buttonBack: ImageButton
@@ -43,6 +41,10 @@ class PetDetailFragment : Fragment() {
     private lateinit var textPetDescription: TextView
     private lateinit var buttonAdoptMe: Button
     private lateinit var progressBar: ProgressBar
+    private lateinit var imageOwnerProfile: CircleImageView
+    private lateinit var textOwnerName: TextView
+    private lateinit var textOwnerLabel: TextView
+    private lateinit var textViewCertified: TextView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,12 +57,9 @@ class PetDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         db = FirebaseFirestore.getInstance()
-
         initViews(view)
         setupClickListeners()
-
-        // Ambil data dari Firestore berdasarkan petId yang diterima
-        loadPetDetailsFromFirestore(args.petId)
+        loadPetAndOwnerDetails(args.petId)
     }
 
     private fun initViews(view: View) {
@@ -74,6 +73,10 @@ class PetDetailFragment : Fragment() {
         textPetDescription = view.findViewById(R.id.textView_pet_description_detail)
         buttonAdoptMe = view.findViewById(R.id.button_adopt_me)
         progressBar = view.findViewById(R.id.progressBar_detail)
+        imageOwnerProfile = view.findViewById(R.id.imageView_owner_profile_detail)
+        textOwnerName = view.findViewById(R.id.textView_owner_name_detail)
+        textOwnerLabel = view.findViewById(R.id.textView_owner_label_detail)
+        textViewCertified = view.findViewById(R.id.textView_certified_detail)
     }
 
     private fun setupClickListeners() {
@@ -82,65 +85,88 @@ class PetDetailFragment : Fragment() {
         }
         buttonAdoptMe.setOnClickListener {
             try {
-                findNavController().navigate(R.id.action_petDetailFragment_to_adoptionFormFragment)
+                // Navigasi dengan mengirim petId, pastikan action & argumen ada di nav_graph
+                val action = PetDetailFragmentDirections.actionPetDetailFragmentToAdoptionFormFragment(args.petId)
+                findNavController().navigate(action)
             } catch (e: Exception) {
-                Log.e("PetDetailFragment", "Navigasi ke AdoptionFormFragment gagal: ${e.message}")
+                Log.e("PetDetailFragment", "Navigasi ke AdoptionFormFragment gagal.", e)
             }
         }
     }
 
-    private fun loadPetDetailsFromFirestore(petId: String) {
-        setLoading(true) // Tampilkan loading
+    private fun loadPetAndOwnerDetails(petId: String) {
+        setLoading(true)
+        Log.d("PetDetail", "Mulai mengambil data hewan untuk ID: $petId")
 
-        // Mengambil satu dokumen dari koleksi 'pets' berdasarkan ID-nya
         db.collection("pets").document(petId).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    // Konversi dokumen Firestore ke objek CatModel
-                    val pet = document.toObject(CatModel::class.java)
+            .addOnSuccessListener { petDocument ->
+                if (petDocument != null && petDocument.exists()) {
+                    val pet = petDocument.toObject(CatModel::class.java)
                     if (pet != null) {
-                        // Jika berhasil, panggil fungsi untuk menampilkan data ke UI
                         displayPetData(pet)
+                        val uploaderUid = pet.uploaderUid
+                        if (uploaderUid.isNotEmpty()) {
+                            loadOwnerDetails(uploaderUid)
+                        } else {
+                            Log.w("PetDetail", "Uploader UID kosong, tidak bisa mengambil data pemilik.")
+                            displayOwnerData("Pemilik", "") // Tampilkan nama default
+                            setLoading(false)
+                        }
                     } else {
                         handleDataNotFound()
+                        setLoading(false)
                     }
                 } else {
                     handleDataNotFound()
+                    setLoading(false)
                 }
-                setLoading(false) // Sembunyikan loading setelah selesai
             }
             .addOnFailureListener { exception ->
                 setLoading(false)
-                Log.e("PetDetailFragment", "Gagal mengambil data: ", exception)
-                Toast.makeText(context, "Gagal memuat detail hewan.", Toast.LENGTH_SHORT).show()
+                Log.e("PetDetail", "Gagal mengambil data HEWAN: ", exception)
             }
     }
 
-    // Fungsi baru untuk mengisi UI dengan data dari Firestore
+    private fun loadOwnerDetails(uploaderId: String) {
+        db.collection("users").document(uploaderId).get()
+            .addOnSuccessListener { userDocument ->
+                var ownerName = "Pemilik"
+                var ownerPhotoUrl = ""
+                if (userDocument != null && userDocument.exists()) {
+                    ownerName = userDocument.getString("displayName") ?: "Pemilik"
+                    ownerPhotoUrl = userDocument.getString("profilePhotoUrl") ?: ""
+                    Log.d("PetDetail", "Data pemilik ditemukan: Nama=$ownerName, URL Foto=$ownerPhotoUrl")
+                } else {
+                    Log.w("PetDetail", "Dokumen pemilik TIDAK DITEMUKAN untuk UID: $uploaderId")
+                }
+                displayOwnerData(ownerName, ownerPhotoUrl)
+                setLoading(false) // Sembunyikan loading setelah SEMUA proses selesai
+            }
+            .addOnFailureListener { exception ->
+                setLoading(false) // Sembunyikan loading jika gagal
+                Log.e("PetDetail", "Gagal mengambil data PEMILIK: ", exception)
+                displayOwnerData("Pemilik", "")
+            }
+    }
+
     private fun displayPetData(pet: CatModel) {
-        // Isi semua TextView dengan data
         textPetName.text = pet.name
         textPetBreed.text = pet.breed
         textPetAge.text = pet.age
         textPetDescription.text = pet.description
-
-        // Atur gender dan warnanya
         if (pet.isFemale) {
-            textGender.text = "♀"
-            textGender.setTextColor(Color.parseColor("#F200FF"))
+            textGender.text = "♀"; textGender.setTextColor(Color.parseColor("#F200FF"))
         } else {
-            textGender.text = "♂"
-            textGender.setTextColor(Color.parseColor("#FCA93F"))
+            textGender.text = "♂"; textGender.setTextColor(Color.parseColor("#FCA93F"))
         }
         textGender.visibility = View.VISIBLE
 
         // Setup slider gambar dengan daftar URL dari Firestore
+        Log.d("PetDetail", "Mencoba memuat gambar dari daftar URL: ${pet.imageUrls}")
         if (pet.imageUrls.isNotEmpty()) {
             val imageSliderAdapter = PetImageSliderAdapter(pet.imageUrls)
             viewPager.adapter = imageSliderAdapter
-            viewPager.visibility = View.VISIBLE
 
-            // Tampilkan indikator titik jika gambar lebih dari 1
             if (pet.imageUrls.size > 1) {
                 tabLayout.visibility = View.VISIBLE
                 TabLayoutMediator(tabLayout, viewPager) { _, _ -> }.attach()
@@ -148,26 +174,32 @@ class PetDetailFragment : Fragment() {
                 tabLayout.visibility = View.GONE
             }
         } else {
-            // Handle jika tidak ada gambar sama sekali
-            viewPager.visibility = View.GONE
-            tabLayout.visibility = View.GONE
+            Log.w("PetDetail", "Daftar imageUrls kosong.")
         }
     }
 
-    private fun handleDataNotFound() {
-        Log.e("PetDetailFragment", "Dokumen hewan dengan ID '${args.petId}' tidak ditemukan.")
-        Toast.makeText(context, "Data hewan tidak ditemukan.", Toast.LENGTH_SHORT).show()
-        textPetName.text = "Tidak Ditemukan"
-        // Sembunyikan view lain jika perlu
-        textGender.visibility = View.GONE
-        viewPager.visibility = View.GONE
+    private fun displayOwnerData(name: String, photoUrl: String) {
+        textOwnerName.text = name
+        textOwnerLabel.text = "Pemilik"
+        Log.d("PetDetail", "Mencoba memuat FOTO PEMILIK dari URL: $photoUrl")
+        if (photoUrl.isNotEmpty()) {
+            Glide.with(this)
+                .load(photoUrl)
+                .placeholder(R.drawable.ic_profile_placeholder)
+                .error(R.drawable.ic_profile_placeholder)
+                .into(imageOwnerProfile)
+        } else {
+            Log.w("PetDetail", "URL foto pemilik kosong, menampilkan placeholder.")
+            imageOwnerProfile.setImageResource(R.drawable.ic_profile_placeholder)
+        }
     }
 
     private fun setLoading(isLoading: Boolean) {
         progressBar.isVisible = isLoading
     }
 
-
-
-
+    private fun handleDataNotFound() {
+        Toast.makeText(context, "Data hewan tidak ditemukan.", Toast.LENGTH_SHORT).show()
+        textPetName.text = "Tidak Ditemukan"
+    }
 }

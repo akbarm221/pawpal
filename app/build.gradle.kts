@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -66,4 +67,5 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-firestore-ktx") // PASTIKAN INI ADA
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 }

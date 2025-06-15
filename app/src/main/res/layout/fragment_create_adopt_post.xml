@@ -8,6 +8,7 @@
     android:fillViewport="true"
     tools:context=".akbar.fitur_createOpenAdopt.CreateAdoptPostFragment"> <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
+    android:background="#EEF2FB"
     android:layout_height="wrap_content"
     android:padding="16dp">
 
@@ -29,6 +30,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Open Adopt Form"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@android:color/black"
@@ -55,6 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,8 +66,11 @@
     <EditText
         android:id="@+id/editText_name_form_post"
         android:layout_width="0dp"
+        android:textColor="@color/black"
         android:layout_height="wrap_content"
         android:hint="ex : Simba"
+
+        android:textColorHint="@color/black"
         android:inputType="textPersonName"
         android:background="@drawable/creatadoptform_edittext_background_placeholder"
         android:padding="12dp"
@@ -78,6 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Age"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +94,9 @@
         android:id="@+id/editText_age_form_post"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:hint="ex : 2 Tahun / 6 Bulan"
+        android:textColorHint="@color/black"
         android:inputType="text"
         android:background="@drawable/creatadoptform_edittext_background_placeholder"
         android:padding="12dp"
@@ -101,6 +110,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Gender"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -112,6 +122,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/creatadoptform_edittext_background_placeholder"
         android:minHeight="48dp"
+        android:textColorHint="@color/black"
         android:layout_marginTop="4dp"
         app:layout_constraintTop_toBottomOf="@+id/label_gender_form_post"
         app:layout_constraintStart_toStartOf="parent"
@@ -123,6 +134,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Breed"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -133,6 +145,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="ex : Persia"
+        android:textColorHint="@color/black"
+        android:textColor="@color/black"
         android:inputType="text"
         android:background="@drawable/creatadoptform_edittext_background_placeholder"
         android:padding="12dp"
@@ -146,6 +160,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Description"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -155,6 +170,8 @@
         android:id="@+id/editText_description_form_post"
         android:layout_width="0dp"
         android:layout_height="120dp"
+        android:textColorHint="@color/black"
+        android:textColor="@color/black"
         android:hint="Ceritakan tentang hewan peliharaan Anda..."
         android:inputType="textMultiLine"
         android:gravity="top"
@@ -170,6 +187,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Documents (sertifikat, vaksin, dll)"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
@@ -190,9 +208,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Pilih Dokumen"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
+        android:textColor="#ffffff"
         android:layout_marginTop="8dp"
+        android:backgroundTint="#464646"
         app:layout_constraintTop_toBottomOf="@+id/layout_selected_documents"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 
     <TextView
@@ -213,15 +236,18 @@
         android:scaleType="centerCrop"
         android:background="@drawable/createadoptform_upload_area_background_placeholder"
         android:src="@drawable/bannerkucing"
+        android:contentDescription="Preview Foto Profil"
         app:layout_constraintTop_toBottomOf="@+id/label_profile_photo_form_post"
         app:layout_constraintStart_toStartOf="parent"
-        android:contentDescription="Preview Foto Profil"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_submit_adopt_post"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:text="Upload Postingan"
+        android:textColor="#ffffff"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:textAllCaps="false"
         android:textSize="18sp"
         android:layout_marginTop="32dp"

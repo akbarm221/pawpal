@@ -35,6 +35,7 @@
 
             <TextView
                 android:id="@+id/textLocation"
+                android:fontFamily="@font/fuzzy_bubbles_regular"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="Kota"
@@ -72,6 +73,7 @@
                         android:id="@+id/textName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/fuzzy_bubbles_regular"
                         tools:text="Kitty"
                         android:textColor="@android:color/white"
                         android:textSize="14sp"
@@ -92,6 +94,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
                     tools:text="1 Y.O"
+                    android:fontFamily="@font/fuzzy_bubbles_regular"
                     android:textColor="@android:color/white"
                     android:textSize="10sp" />
             </LinearLayout>

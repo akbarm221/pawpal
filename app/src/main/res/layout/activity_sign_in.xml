@@ -97,6 +97,8 @@
             android:textStyle="bold"
             android:backgroundTint="@color/bg_primary"
             android:text="@string/sign_in"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/fuzzy_bubbles_regular"
             android:textSize="22sp"
             android:paddingTop="17dp"
             android:paddingBottom="17dp"

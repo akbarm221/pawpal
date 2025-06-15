@@ -13,6 +13,7 @@
     <TextView
         android:id="@+id/textView_history_pet_name"
         android:layout_width="0dp"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:textColor="@android:color/black"
@@ -27,6 +28,7 @@
         android:id="@+id/textView_history_pet_subtitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/fuzzy_bubbles_regular"
         android:layout_marginTop="2dp"
         android:text="@string/click_to_edit"
         android:textColor="#8A8A8A"

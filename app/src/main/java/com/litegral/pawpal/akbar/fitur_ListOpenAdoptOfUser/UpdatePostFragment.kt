@@ -1,4 +1,5 @@
-package com.litegral.pawpal.akbar.fitur_ListOpenAdoptOfUser // Sesuaikan package Anda
+// Pastikan package ini sesuai dengan lokasi file Anda
+package com.litegral.pawpal.akbar.fitur_ListOpenAdoptOfUser
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -21,8 +22,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.litegral.pawpal.R
-import com.litegral.pawpal.akbar.model.CatModel
 import com.litegral.pawpal.akbar.fitur_petDetail.adapter.PetImageSliderAdapter
+import com.litegral.pawpal.akbar.model.CatModel
 
 class UpdatePostFragment : Fragment() {
 
@@ -35,6 +36,8 @@ class UpdatePostFragment : Fragment() {
     private lateinit var buttonBack: ImageButton
     private lateinit var textPetName: TextView
     private lateinit var textPetDescription: TextView
+    private lateinit var textPetBreed: TextView
+    private lateinit var textPetAge: TextView
     private lateinit var buttonUpdate: Button
     private lateinit var buttonDelete: Button
     private lateinit var progressBar: ProgressBar
@@ -67,9 +70,11 @@ class UpdatePostFragment : Fragment() {
         buttonBack = view.findViewById(R.id.button_back_update)
         textPetName = view.findViewById(R.id.textView_pet_name_update)
         textPetDescription = view.findViewById(R.id.textView_pet_description_update)
+        textPetBreed = view.findViewById(R.id.textView_pet_breed_update) // Inisialisasi breed
+        textPetAge = view.findViewById(R.id.textView_pet_age_update)   // Inisialisasi umur
         buttonUpdate = view.findViewById(R.id.button_update)
         buttonDelete = view.findViewById(R.id.button_delete)
-        progressBar = view.findViewById(R.id.progressBar_update) // Pastikan ID ini ada di XML
+        progressBar = view.findViewById(R.id.progressBar_update)
     }
 
     private fun setupClickListeners(){
@@ -84,6 +89,7 @@ class UpdatePostFragment : Fragment() {
             .addOnSuccessListener { document ->
                 if (document != null && document.exists()) {
                     currentPet = document.toObject(CatModel::class.java)
+                    // Gunakan ?.let untuk penanganan null yang lebih aman
                     currentPet?.let { displayPetData(it) }
                 } else {
                     Toast.makeText(context, "Data hewan tidak ditemukan.", Toast.LENGTH_SHORT).show()
@@ -99,6 +105,8 @@ class UpdatePostFragment : Fragment() {
 
     private fun displayPetData(pet: CatModel) {
         textPetName.text = pet.name
+        textPetBreed.text = pet.breed // Tampilkan data breed
+        textPetAge.text = pet.age     // Tampilkan data umur
         textPetDescription.text = pet.description
 
         if (pet.imageUrls.isNotEmpty()) {
@@ -132,7 +140,7 @@ class UpdatePostFragment : Fragment() {
             .setMessage("Anda yakin ingin menghapus postingan untuk ${currentPet?.name}?")
             .setPositiveButton("Ya, Hapus") { _, _ -> performDelete() }
             .setNegativeButton("Tidak", null)
-            .setIcon(R.drawable.cat_dislike)
+            .setIcon(R.drawable.cat_dislike) // Ganti dengan ikon warning Anda
             .show()
     }
 
@@ -140,13 +148,12 @@ class UpdatePostFragment : Fragment() {
         val petToDelete = currentPet ?: return
         setLoading(true)
 
-        // Hapus gambar dari Storage, lalu hapus dokumen dari Firestore
         deleteImagesFromStorage(petToDelete.imageUrls) { allImagesDeleted ->
             if (allImagesDeleted) {
                 deletePostFromFirestore(petToDelete.id)
             } else {
                 setLoading(false)
-                Toast.makeText(context, "Gagal menghapus beberapa file gambar.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Gagal menghapus beberapa file gambar. Proses dibatalkan.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -156,20 +163,22 @@ class UpdatePostFragment : Fragment() {
             onComplete(true); return
         }
         var processedCount = 0
-        var success = true
+        val totalImages = imageUrls.filter { it.isNotBlank() }.size
+        if (totalImages == 0) {
+            onComplete(true); return
+        }
+
+        var allSuccess = true
         imageUrls.forEach { url ->
             if (url.isNotBlank()) {
                 storage.getReferenceFromUrl(url).delete().addOnCompleteListener { task ->
                     if (!task.isSuccessful) {
-                        success = false
+                        allSuccess = false
                         Log.w("UpdatePostFragment", "Gagal hapus gambar: $url", task.exception)
                     }
                     processedCount++
-                    if (processedCount == imageUrls.size) onComplete(success)
+                    if (processedCount == totalImages) onComplete(allSuccess)
                 }
-            } else {
-                processedCount++
-                if (processedCount == imageUrls.size) onComplete(success)
             }
         }
     }
@@ -178,7 +187,7 @@ class UpdatePostFragment : Fragment() {
         db.collection("pets").document(petId).delete()
             .addOnSuccessListener {
                 Toast.makeText(context, "Postingan berhasil dihapus.", Toast.LENGTH_LONG).show()
-                findNavController().popBackStack() // Kembali ke halaman riwayat
+                findNavController().popBackStack()
             }
             .addOnFailureListener { e ->
                 Toast.makeText(context, "Gagal menghapus data: ${e.message}", Toast.LENGTH_LONG).show()
